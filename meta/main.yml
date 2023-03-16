@@ -1,0 +1,15 @@
+galaxy_info:
+  author: mash
+  company: mash
+  role_name: matterbridge
+  namespace: mash
+  description: Matterbridge
+  platforms:
+    - name: Debian
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+  license: GPL-3.0-or-later
+  min_ansible_version: '2.1'

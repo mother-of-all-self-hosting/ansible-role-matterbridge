@@ -1,0 +1,39 @@
+---
+
+- name: Ensure Matterbridge paths exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0750"
+    owner: "{{ matterbridge_uid }}"
+    group: "{{ matterbridge_gid }}"
+  with_items:
+    - "{{ matterbridge_base_path }}"
+    - "{{ matterbridge_config_dir_path }}"
+
+- name: Ensure Matterbridge image is pulled
+  community.docker.docker_image:
+    name: "{{ matterbridge_container_image }}"
+    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+    force_source: "{{ matterbridge_container_image_force_pull if ansible_version.major > 2 or ansible_version.minor >= 8 else omit }}"
+    force: "{{ omit if ansible_version.major > 2 or ansible_version.minor >= 8 else matterbridge_container_image_force_pull }}"
+  register: result
+  retries: "{{ devture_playbook_help_container_retries_count }}"
+  delay: "{{ devture_playbook_help_container_retries_delay }}"
+  until: result is not failed
+
+- name: Ensure Matterbridge container network is created
+  community.general.docker_network:
+    name: "{{ matterbridge_container_network }}"
+    driver: bridge
+
+- name: Ensure Matterbridge systemd service installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/matterbridge.service.j2"
+    dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ matterbridge_identifier }}.service"
+    mode: 0640
+
+- name: Ensure Matterbridge config is deployed
+  ansible.builtin.template:
+    src: "{{ matterbridge_toml_src_path }}"
+    dest: "{{ matterbridge_toml_path }}"

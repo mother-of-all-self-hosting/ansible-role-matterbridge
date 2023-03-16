@@ -1,0 +1,25 @@
+---
+
+- name: Check existence of Matterbridge systemd service
+  ansible.builtin.stat:
+    path: "{{ devture_systemd_docker_base_systemd_path }}/{{ matterbridge_identifier }}.service"
+  register: matterbridge_service_stat
+
+- when: matterbridge_service_stat.stat.exists | bool
+  block:
+    - name: Ensure Matterbridge systemd service is stopped
+      ansible.builtin.service:
+        name: "{{ matterbridge_identifier }}"
+        state: stopped
+        enabled: false
+        daemon_reload: true
+
+    - name: Ensure Matterbridge systemd service does not exists
+      ansible.builtin.file:
+        path: "{{ devture_systemd_docker_base_systemd_path }}/{{ matterbridge_identifier }}.service"
+        state: absent
+
+    - name: Ensure Matterbridge path doesn't exist
+      ansible.builtin.file:
+        path: "{{ matterbridge_base_path }}"
+        state: absent

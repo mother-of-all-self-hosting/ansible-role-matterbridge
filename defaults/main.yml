@@ -1,0 +1,17 @@
+---
+matterbridge_enabled: false
+matterbridge_identifier: matterbridge
+matterbridge_version: 1.26.0
+
+matterbridge_container_registry_prefix: docker.io/
+matterbridge_container_image: "{{ matterbridge_container_registry_prefix }}42wim/matterbridge:{{ matterbridge_container_image_tag }}"
+matterbridge_container_image_tag: "{{ matterbridge_version }}"
+matterbridge_container_image_force_pull: "{{ matterbridge_container_image.endswith(':latest') }}"
+
+matterbridge_container_network: "{{ matterbridge_identifier }}"
+matterbridge_uid: "{{ mash_playbook_uid }}"
+matterbridge_gid: "{{ mash_playbook_gid }}"
+
+matterbridge_base_path: "{{ mash_playbook_base_path }}/{{ mash_playbook_service_base_directory_name_prefix }}{{ matterbridge_identifier }}"
+matterbridge_config_dir_path: "{{ matterbridge_base_path }}/data"
+matterbridge_toml_path: "{{ matterbridge_config_dir_path }}/matterbridge.toml"

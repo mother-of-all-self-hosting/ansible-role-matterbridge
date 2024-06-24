@@ -15,6 +15,6 @@ matterbridge_gid: "{{ mash_playbook_gid }}"
 matterbridge_base_path: "{{ mash_playbook_base_path }}/{{ mash_playbook_service_base_directory_name_prefix }}{{ matterbridge_identifier }}"
 matterbridge_config_dir_path: "{{ matterbridge_base_path }}/data"
 matterbridge_toml_path: "{{ matterbridge_config_dir_path }}/matterbridge.toml"
-matterbridge_toml_config:
+matterbridge_configuration_toml:
   accounts: []
   gateways: []

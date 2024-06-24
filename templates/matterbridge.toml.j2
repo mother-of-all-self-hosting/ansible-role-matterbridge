@@ -1,0 +1,19 @@
+{% for account in matterbridge_toml_config.accounts %}
+[{{ account.protocol }}.{{ account.identifier }}]
+{% for key, value in account.configuration.items() %}
+{{key}}={{value}}
+{% endfor %}
+{% endfor %}
+
+{% for gateway in matterbridge_toml_config.gateways %}
+[[gateway]]
+name="{{ gateway.name }}"
+enable={{ gateway.enable }}
+
+{% for channel in gateway.channels %}
+    [[gateway.{{ channel.type }}]]
+    account="{{ channel.account }}"
+    channel="{{ channel.channel }}"
+
+{% endfor %}
+{% endfor %}

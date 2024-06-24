@@ -35,5 +35,5 @@
 
 - name: Ensure Matterbridge config is deployed
   ansible.builtin.template:
-    src: "{{ matterbridge_toml_src_path }}"
+    src: "{{ role_path }}/templates/matterbridge.toml.j2"
     dest: "{{ matterbridge_toml_path }}"

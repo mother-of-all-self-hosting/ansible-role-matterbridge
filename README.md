@@ -1,6 +1,6 @@
 # Matterbridge Ansible role
 
-This is an [Ansible](https://www.ansible.com/) role which installs [Matterbridge](https://github.com/dani-garcia/matterbridge) to run as a [Docker](https://www.docker.com/) container wrapped in a systemd service.
+This is an [Ansible](https://www.ansible.com/) role which installs [Matterbridge](https://github.com/42wim/matterbridge) to run as a [Docker](https://www.docker.com/) container wrapped in a systemd service.
 
 This role _implicitly_ depends on:
 

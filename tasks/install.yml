@@ -42,6 +42,6 @@
 
 - name: Ensure Matterbridge systemd service installed
   ansible.builtin.template:
-    src: "{{ role_path }}/templates/matterbridge.service.j2"
+    src: "{{ role_path }}/templates/systemd/matterbridge.service.j2"
     dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ matterbridge_identifier }}.service"
     mode: 0640

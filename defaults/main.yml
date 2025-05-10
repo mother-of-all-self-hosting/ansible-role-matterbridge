@@ -5,6 +5,8 @@
 ---
 matterbridge_enabled: false
 matterbridge_identifier: matterbridge
+
+# renovate: datasource=docker depName=42wim/matterbridge versioning=semver
 matterbridge_version: 1.26.0
 
 matterbridge_container_registry_prefix: docker.io/

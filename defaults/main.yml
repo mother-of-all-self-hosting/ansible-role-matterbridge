@@ -13,7 +13,7 @@
 matterbridge_enabled: true
 
 matterbridge_identifier: matterbridge
-matterbridge_base_path: "{{ mash_playbook_base_path }}/{{ mash_playbook_service_base_directory_name_prefix }}{{ matterbridge_identifier }}"
+matterbridge_base_path: "/{{ matterbridge_identifier }}"
 matterbridge_config_dir_path: "{{ matterbridge_base_path }}/config"
 matterbridge_toml_path: "{{ matterbridge_config_dir_path }}/matterbridge.toml"
 

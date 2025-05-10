@@ -10,7 +10,7 @@
 ---
 # Project source code URL: https://github.com/42wim/matterbridge
 
-matterbridge_enabled: false
+matterbridge_enabled: true
 matterbridge_identifier: matterbridge
 
 # renovate: datasource=docker depName=42wim/matterbridge versioning=semver

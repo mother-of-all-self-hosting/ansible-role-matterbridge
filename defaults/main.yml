@@ -8,6 +8,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 ---
+# Project source code URL: https://github.com/42wim/matterbridge
+
 matterbridge_enabled: false
 matterbridge_identifier: matterbridge
 

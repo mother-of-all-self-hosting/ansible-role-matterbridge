@@ -1,7 +1,17 @@
+# SPDX-FileCopyrightText: 2023 - 2025 Slavi Pantaleev
 # SPDX-FileCopyrightText: 2024 Oliver Lorenz
+# SPDX-FileCopyrightText: 2025 Suguru Hirahara
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 ---
 
-
+- name: Fail if required Matterbridge settings not defined
+  ansible.builtin.fail:
+    msg: >
+      You need to define a required configuration setting (`{{ item }}`).
+  when: "vars[item] == ''"
+  with_items:
+    - matterbridge_uid
+    - matterbridge_gid
+    - matterbridge_container_network

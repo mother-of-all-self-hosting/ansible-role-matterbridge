@@ -24,8 +24,8 @@ matterbridge_container_image_registry_prefix_upstream_default: docker.io/
 matterbridge_container_image_force_pull: "{{ matterbridge_container_image.endswith(':latest') }}"
 
 matterbridge_container_network: "{{ matterbridge_identifier }}"
-matterbridge_uid: "{{ mash_playbook_uid }}"
-matterbridge_gid: "{{ mash_playbook_gid }}"
+matterbridge_uid: ""
+matterbridge_gid: ""
 
 matterbridge_base_path: "{{ mash_playbook_base_path }}/{{ mash_playbook_service_base_directory_name_prefix }}{{ matterbridge_identifier }}"
 matterbridge_config_dir_path: "{{ matterbridge_base_path }}/config"

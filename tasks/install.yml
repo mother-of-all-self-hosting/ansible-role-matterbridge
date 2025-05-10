@@ -15,6 +15,11 @@
     - "{{ matterbridge_base_path }}"
     - "{{ matterbridge_config_dir_path }}"
 
+- name: Ensure Matterbridge config is deployed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/matterbridge.toml.j2"
+    dest: "{{ matterbridge_toml_path }}"
+
 - name: Ensure Matterbridge image is pulled
   community.docker.docker_image:
     name: "{{ matterbridge_container_image }}"
@@ -36,8 +41,3 @@
     src: "{{ role_path }}/templates/matterbridge.service.j2"
     dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ matterbridge_identifier }}.service"
     mode: 0640
-
-- name: Ensure Matterbridge config is deployed
-  ansible.builtin.template:
-    src: "{{ role_path }}/templates/matterbridge.toml.j2"
-    dest: "{{ matterbridge_toml_path }}"

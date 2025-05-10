@@ -34,11 +34,11 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
 			--rm \
 			--name={{ matterbridge_identifier }} \
 			--log-driver=none \
-			--network={{ matterbridge_container_network }} \
 			--user={{ matterbridge_uid }}:{{ matterbridge_gid }} \
 			--cap-drop=ALL \
 			--read-only \
 			--health-interval=10s \
+			--network={{ matterbridge_container_network }} \
 			--mount type=bind,src={{ matterbridge_toml_path }},dst=/etc/matterbridge/matterbridge.toml,readonly \
 			{{ matterbridge_container_image }}
 

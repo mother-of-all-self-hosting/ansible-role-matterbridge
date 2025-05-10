@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2024 Oliver Lorenz
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 ---
 matterbridge_enabled: false
 matterbridge_identifier: matterbridge

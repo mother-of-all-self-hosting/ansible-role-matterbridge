@@ -31,21 +31,22 @@ ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_s
 	- when a service is not `healthy`, Traefik does not reverse-proxy to it -- leading to 1 minute downtime every single time this restarts
 #}
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
-			--rm \
-			--name={{ matterbridge_identifier }} \
-			--log-driver=none \
-			--user={{ matterbridge_uid }}:{{ matterbridge_gid }} \
-			--cap-drop=ALL \
-			--read-only \
-			--health-interval=10s \
-			--network={{ matterbridge_container_network }} \
-			--mount type=bind,src={{ matterbridge_toml_path }},dst=/etc/matterbridge/matterbridge.toml,readonly \
-			{{ matterbridge_container_image }}
+      --rm \
+      --name={{ matterbridge_identifier }} \
+      --log-driver=none \
+      --user={{ matterbridge_uid }}:{{ matterbridge_gid }} \
+      --cap-drop=ALL \
+      --read-only \
+      --health-interval=10s \
+      --network={{ matterbridge_container_network }} \
+      --mount type=bind,src={{ matterbridge_toml_path }},dst=/etc/matterbridge/matterbridge.toml,readonly \
+      {{ matterbridge_container_image }}
 
 ExecStart={{ devture_systemd_docker_base_host_command_docker }} start --attach {{ matterbridge_identifier }}
 
 ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} stop -t {{ devture_systemd_docker_base_container_stop_grace_time_seconds }} {{ matterbridge_identifier }} 2>/dev/null'
 ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ matterbridge_identifier }} 2>/dev/null'
+
 Restart=always
 RestartSec=30
 SyslogIdentifier={{ matterbridge_identifier }}

@@ -14,6 +14,12 @@
   when: "item.old in vars"
   with_items:
     - {'old': 'matterbridge_container_registry_prefix', 'new': 'matterbridge_container_image_registry_prefix'}
+    - {'old': 'matterbridge_systemd_required_systemd_services_list_default', 'new': 'matterbridge_systemd_required_services_list_default'}
+    - {'old': 'matterbridge_systemd_required_systemd_services_list_auto', 'new': 'matterbridge_systemd_required_services_list_auto'}
+    - {'old': 'matterbridge_systemd_required_systemd_services_list_custom', 'new': 'matterbridge_systemd_required_services_list_custom'}
+    - {'old': 'matterbridge_systemd_wanted_systemd_services_list_default', 'new': 'matterbridge_systemd_wanted_services_list_default'}
+    - {'old': 'matterbridge_systemd_wanted_systemd_services_list_auto', 'new': 'matterbridge_systemd_wanted_services_list_auto'}
+    - {'old': 'matterbridge_systemd_wanted_systemd_services_list_custom', 'new': 'matterbridge_systemd_wanted_services_list_custom'}
 
 - name: Fail if required Matterbridge settings not defined
   ansible.builtin.fail:

@@ -10,7 +10,7 @@
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    mode: "0750"
+    mode: 0750
     owner: "{{ matterbridge_uid }}"
     group: "{{ matterbridge_gid }}"
   with_items:

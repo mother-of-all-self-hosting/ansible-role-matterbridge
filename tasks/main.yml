@@ -1,14 +1,18 @@
+# SPDX-FileCopyrightText: 2023 Slavi Pantaleev
 # SPDX-FileCopyrightText: 2024 Oliver Lorenz
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 ---
 
-- block:
-    - when: matterbridge_enabled | bool
+- name: Perform Matterbridge installation tasks
+  block:
+    - name: Validate Matterbridge configuration
+      when: matterbridge_enabled | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/validate_config.yml"
 
-    - when: matterbridge_enabled | bool
+    - name: Install Matterbridge
+      when: matterbridge_enabled | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/install.yml"
   tags:
     - setup-all
@@ -16,8 +20,10 @@
     - install-all
     - install-matterbridge
 
-- block:
-    - when: not matterbridge_enabled | bool
+- name: Perform Matterbridge uninstallation tasks
+  block:
+    - name: Uninstall Matterbridge
+      when: not matterbridge_enabled | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall.yml"
   tags:
     - setup-all

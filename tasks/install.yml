@@ -17,7 +17,7 @@
     - "{{ matterbridge_base_path }}"
     - "{{ matterbridge_config_dir_path }}"
 
-- name: Ensure Matterbridge config is deployed
+- name: Ensure Matterbridge configuration file installed
   ansible.builtin.template:
     src: "{{ role_path }}/templates/matterbridge.toml.j2"
     dest: "{{ matterbridge_toml_path }}"

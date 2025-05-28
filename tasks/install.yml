@@ -5,12 +5,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 ---
-
 - name: Ensure Matterbridge paths exist
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    mode: 0750
+    mode: "0750"
     owner: "{{ matterbridge_uid }}"
     group: "{{ matterbridge_gid }}"
   with_items:
@@ -21,6 +20,7 @@
   ansible.builtin.template:
     src: "{{ role_path }}/templates/matterbridge.toml.j2"
     dest: "{{ matterbridge_toml_path }}"
+    mode: "0644"
 
 - name: Ensure Matterbridge image is pulled
   community.docker.docker_image:
@@ -44,4 +44,4 @@
   ansible.builtin.template:
     src: "{{ role_path }}/templates/systemd/matterbridge.service.j2"
     dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ matterbridge_identifier }}.service"
-    mode: 0644
+    mode: "0644"

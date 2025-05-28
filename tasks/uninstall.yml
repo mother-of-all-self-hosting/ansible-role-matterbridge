@@ -3,13 +3,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 ---
-
 - name: Check existence of Matterbridge systemd service
   ansible.builtin.stat:
     path: "{{ devture_systemd_docker_base_systemd_path }}/{{ matterbridge_identifier }}.service"
   register: matterbridge_service_stat
 
-- when: matterbridge_service_stat.stat.exists | bool
+- name: Uninstall Matterbridge systemd services and files
+  when: matterbridge_service_stat.stat.exists | bool
   block:
     - name: Ensure Matterbridge systemd service is stopped
       ansible.builtin.service:

@@ -5,6 +5,7 @@
 
 ---
 - name: Perform Matterbridge installation tasks
+  when: matterbridge_enabled | bool
   tags:
     - setup-all
     - setup-matterbridge
@@ -12,17 +13,15 @@
     - install-matterbridge
   block:
     - name: Validate Matterbridge configuration
-      when: matterbridge_enabled | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/validate_config.yml"
     - name: Install Matterbridge
-      when: matterbridge_enabled | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/install.yml"
 
 - name: Perform Matterbridge uninstallation tasks
+  when: not matterbridge_enabled | bool
   tags:
     - setup-all
     - setup-matterbridge
   block:
     - name: Uninstall Matterbridge
-      when: not matterbridge_enabled | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall.yml"

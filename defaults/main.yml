@@ -30,6 +30,12 @@ matterbridge_container_image_registry_prefix_upstream: "{{ matterbridge_containe
 matterbridge_container_image_registry_prefix_upstream_default: docker.io/
 matterbridge_container_image_force_pull: "{{ matterbridge_container_image.endswith(':latest') }}"
 
+matterbridge_container_image_self_build: false
+matterbridge_container_image_name: "42wim/matterbridge:{{ matterbridge_container_repo_version }}"
+matterbridge_container_repo: "https://github.com/42wim/matterbridge.git"
+matterbridge_container_repo_version: "{{ 'v' + matterbridge_version if matterbridge_version != 'latest' else 'main' }}"
+matterbridge_container_src_files_path: "{{ matterbridge_base_path }}/docker-src"
+
 # The base container network. It will be auto-created by this role if it doesn't exist already.
 matterbridge_container_network: "{{ matterbridge_identifier }}"
 

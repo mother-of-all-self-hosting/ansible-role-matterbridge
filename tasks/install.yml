@@ -52,21 +52,21 @@
   block:
     - name: Ensure Matterbridge repository is present on self-build
       ansible.builtin.git:
-        repo: "{{ matterbridge_container_repo }}"
-        version: "{{ matterbridge_container_repo_version }}"
-        dest: "{{ matterbridge_container_src_files_path }}"
+        repo: "{{ matterbridge_container_image_self_build_repo }}"
+        version: "{{ matterbridge_container_image_self_build_repo_version }}"
+        dest: "{{ matterbridge_container_image_self_build_src_files_path }}"
         force: "yes"
       register: matterbridge_git_pull_results
 
     - name: Ensure Matterbridge container image is built
       community.docker.docker_image:
-        name: "{{ matterbridge_container_image_name }}"
+        name: "{{ matterbridge_container_image_self_build_name }}"
         source: build
         force_source: "{{ matterbridge_git_pull_results.changed if ansible_version.major > 2 or ansible_version.minor >= 8 else omit }}"
         force: "{{ omit if ansible_version.major > 2 or ansible_version.minor >= 8 else matterbridge_git_pull_results.changed }}"
         build:
           dockerfile: Dockerfile
-          path: "{{ matterbridge_container_src_files_path }}"
+          path: "{{ matterbridge_container_image_self_build_src_files_path }}"
           pull: true
           args:
 

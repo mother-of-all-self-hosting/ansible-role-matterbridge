@@ -1,5 +1,7 @@
 <!--
+SPDX-FileCopyrightText: 2023 Slavi Pantaleev
 SPDX-FileCopyrightText: 2024 Oliver Lorenz
+SPDX-FileCopyrightText: 2025 Suguru Hirahara
 
 SPDX-License-Identifier: GPL-3.0-or-later
 -->
@@ -16,6 +18,8 @@ This role _implicitly_ depends on:
 Check [defaults/main.yml](defaults/main.yml) for the full list of supported options.
 
 For an Ansible playbook which integrates this role and makes it easier to use, see the [mash-playbook](https://github.com/mother-of-all-self-hosting/mash-playbook).
+
+💡 See this [document](docs/configuring-matterbridge.md) for details about setting up the service with this role.
 
 ## Development
 

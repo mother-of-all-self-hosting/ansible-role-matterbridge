@@ -45,7 +45,7 @@ matterbridge_systemd_required_services_list_default: "{{ [devture_systemd_docker
 matterbridge_systemd_required_services_list_auto: []
 matterbridge_systemd_required_services_list_custom: []
 
-# List of systemd services that Matterbridge systemd service wants
+# List of systemd services that the Matterbridge systemd service wants
 matterbridge_systemd_wanted_services_list: "{{ matterbridge_systemd_wanted_services_list_default + matterbridge_systemd_wanted_services_list_auto + matterbridge_systemd_wanted_services_list_custom }}"
 matterbridge_systemd_wanted_services_list_default: []
 matterbridge_systemd_wanted_services_list_auto: []

@@ -14,8 +14,8 @@ matterbridge_enabled: true
 
 matterbridge_identifier: matterbridge
 matterbridge_base_path: "/{{ matterbridge_identifier }}"
-matterbridge_config_dir_path: "{{ matterbridge_base_path }}/config"
-matterbridge_toml_path: "{{ matterbridge_config_dir_path }}/matterbridge.toml"
+matterbridge_config_path: "{{ matterbridge_base_path }}/config"
+matterbridge_toml_path: "{{ matterbridge_config_path }}/matterbridge.toml"
 
 # renovate: datasource=docker depName=42wim/matterbridge versioning=semver
 matterbridge_version: 1.26.0

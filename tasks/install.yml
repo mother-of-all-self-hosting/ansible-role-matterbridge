@@ -14,7 +14,7 @@
     group: "{{ matterbridge_gid }}"
   with_items:
     - "{{ matterbridge_base_path }}"
-    - "{{ matterbridge_config_dir_path }}"
+    - "{{ matterbridge_config_path }}"
 
 - name: Ensure Matterbridge configuration file installed
   ansible.builtin.template:

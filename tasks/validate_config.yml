@@ -12,6 +12,7 @@
       Please change your configuration to rename the variable (`{{ item.old }}` -> `{{ item.new }}`).
   when: "lookup('ansible.builtin.varnames', ('^' + item.old + '$'), wantlist=True) | length > 0"
   with_items:
+    - { "old": "matterbridge_config_dir_path", "new": "matterbridge_config_path" }
     - { "old": "matterbridge_container_registry_prefix", "new": "matterbridge_container_image_registry_prefix" }
     - { "old": "matterbridge_systemd_required_systemd_services_list_default", "new": "matterbridge_systemd_required_services_list_default" }
     - { "old": "matterbridge_systemd_required_systemd_services_list_auto", "new": "matterbridge_systemd_required_services_list_auto" }

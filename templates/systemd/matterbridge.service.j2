@@ -40,6 +40,9 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       --health-interval=10s \
       --network={{ matterbridge_container_network }} \
       --mount type=bind,src={{ matterbridge_toml_path }},dst=/etc/matterbridge/matterbridge.toml,readonly \
+      {% for arg in matterbridge_container_extra_arguments %}
+      {{ arg }} \
+      {% endfor %}
       {{ matterbridge_container_image_self_build_name if matterbridge_container_image_self_build else matterbridge_container_image }}
 
 ExecStart={{ devture_systemd_docker_base_host_command_docker }} start --attach {{ matterbridge_identifier }}

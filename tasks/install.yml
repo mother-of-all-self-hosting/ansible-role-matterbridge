@@ -16,6 +16,16 @@
     - "{{ matterbridge_base_path }}"
     - "{{ matterbridge_config_path }}"
 
+- name: Ensure Matterbridge support file installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/{{ item }}.j2"
+    dest: "{{ matterbridge_base_path }}/{{ item }}"
+    mode: "0640"
+    owner: "{{ matterbridge_uid }}"
+    group: "{{ matterbridge_gid }}"
+  with_items:
+    - env
+
 - name: Ensure Matterbridge configuration file installed
   ansible.builtin.template:
     src: "{{ role_path }}/templates/matterbridge.toml.j2"

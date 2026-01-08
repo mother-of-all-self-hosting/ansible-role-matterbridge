@@ -59,3 +59,9 @@ matterbridge_systemd_wanted_services_list_custom: []
 matterbridge_configuration_toml:
   accounts: []
   gateways: []
+
+# Specify the timezone
+matterbridge_environment_variables_tz: UTC
+
+# Additional environment variables.
+matterbridge_environment_variables_additional_variables: ""

@@ -44,7 +44,7 @@ matterbridge_container_extra_arguments: "{{ matterbridge_container_extra_argumen
 matterbridge_container_extra_arguments_auto: []
 matterbridge_container_extra_arguments_custom: []
 
-# List of systemd services that Matterbridge systemd service depends on
+# List of systemd services that the Matterbridge systemd service depends on
 matterbridge_systemd_required_services_list: "{{ matterbridge_systemd_required_services_list_default + matterbridge_systemd_required_services_list_auto + matterbridge_systemd_required_services_list_custom }}"
 matterbridge_systemd_required_services_list_default: "{{ [devture_systemd_docker_base_docker_service_name] if devture_systemd_docker_base_docker_service_name else [] }}"
 matterbridge_systemd_required_services_list_auto: []

@@ -28,7 +28,6 @@ matterbridge_container_image_tag: "{{ matterbridge_version }}"
 matterbridge_container_image_registry_prefix: "{{ matterbridge_container_image_registry_prefix_upstream }}"
 matterbridge_container_image_registry_prefix_upstream: "{{ matterbridge_container_image_registry_prefix_upstream_default }}"
 matterbridge_container_image_registry_prefix_upstream_default: docker.io/
-matterbridge_container_image_force_pull: "{{ matterbridge_container_image.endswith(':latest') }}"
 
 matterbridge_container_image_self_build: false
 matterbridge_container_image_self_build_name: "42wim/matterbridge:{{ matterbridge_container_image_self_build_repo_version }}"

@@ -1,0 +1,94 @@
+# SPDX-FileCopyrightText: 2026 Slavi Pantaleev
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+---
+dependency:
+  name: galaxy
+  options:
+    requirements-file: requirements.yml
+    force: true
+driver:
+  name: docker
+platforms:
+  - name: matterbridge-${MOLECULE_DISTRO:-ubuntu2604}-default
+    image: "geerlingguy/docker-${MOLECULE_DISTRO:-ubuntu2604}-ansible:latest"
+    command: ${MOLECULE_DOCKER_COMMAND:-""}
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    cgroupns_mode: host
+    privileged: true
+    pre_build_image: true
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      callback_result_format: yaml
+  inventory:
+    group_vars:
+      all:
+        # Helper variables
+        matterbridge_debug_service_enabled: false
+
+        # Variables for Matterbridge
+        matterbridge_uid: 1000
+        matterbridge_gid: 1000
+
+        # Matterbridge bridges chat networks together, so the one thing this
+        # scenario must never do is connect to somebody's Slack, Discord or
+        # Matrix server. Every other protocol Matterbridge speaks needs such a
+        # server to talk to, but its `api` bridge does not: it is a plain HTTP
+        # endpoint that Matterbridge itself serves, which messages can be
+        # pushed into and pulled out of.
+        #
+        # Bridging one `api` account to another therefore builds a gateway
+        # that is complete and fully functional while reaching nothing outside
+        # the container. verify.yml pushes a message into the inbound account
+        # and reads it back out of the outbound one, which exercises the
+        # router - the part of Matterbridge that actually does the bridging -
+        # rather than merely asserting that the process is up.
+        matterbridge_molecule_inbound_container_port: 4242
+        matterbridge_molecule_outbound_container_port: 4243
+
+        # The role does not publish any ports (a real deployment reaches the
+        # chat networks outbound), so the scenario publishes the two `api`
+        # endpoints onto the loopback interface of the test host to probe them.
+        matterbridge_molecule_inbound_host_port: 14242
+        matterbridge_molecule_outbound_host_port: 14243
+
+        # A gateway name nothing else would produce, so that finding it in the
+        # rendered configuration and in the relayed message is evidence that
+        # this scenario's configuration is the one in play.
+        matterbridge_molecule_gateway_name: matterbridge-molecule
+
+        matterbridge_container_extra_arguments_custom:
+          - "-p 127.0.0.1:{{ matterbridge_molecule_inbound_host_port }}:{{ matterbridge_molecule_inbound_container_port }}"
+          - "-p 127.0.0.1:{{ matterbridge_molecule_outbound_host_port }}:{{ matterbridge_molecule_outbound_container_port }}"
+
+        matterbridge_configuration_toml:
+          accounts:
+            - protocol: api
+              identifier: inbound
+              configuration:
+                BindAddress: "0.0.0.0:{{ matterbridge_molecule_inbound_container_port }}"
+                Buffer: 1000
+            - protocol: api
+              identifier: outbound
+              configuration:
+                BindAddress: "0.0.0.0:{{ matterbridge_molecule_outbound_container_port }}"
+                Buffer: 1000
+          gateways:
+            - name: "{{ matterbridge_molecule_gateway_name }}"
+              enable: true
+              channels:
+                - type: in
+                  account: api.inbound
+                  channel: api
+                - type: out
+                  account: api.outbound
+                  channel: api
+  env:
+    # Workaround for https://github.com/ansible/molecule/issues/4391
+    ANSIBLE_ROLES_PATH: ${MOLECULE_PROJECT_DIRECTORY}/..:/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles:~/.ansible/roles
+verifier:
+  name: ansible

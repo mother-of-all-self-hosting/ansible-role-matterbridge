@@ -88,7 +88,7 @@
     # collide with Jinja.
     - name: Inspect the running Matterbridge container
       ansible.builtin.command:
-        cmd: "docker inspect {{ matterbridge_defaults.matterbridge_identifier }}"
+        cmd: "docker container inspect {{ matterbridge_defaults.matterbridge_identifier }}"
       register: matterbridge_container_inspect
       changed_when: false
 

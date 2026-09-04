@@ -191,11 +191,11 @@
           instead of version {{ matterbridge_defaults.matterbridge_version }}
         success_msg: "The running Matterbridge reports version {{ matterbridge_defaults.matterbridge_version }}"
 
-    - name: Show Matterbridge verification summary
+    - name: Show the Matterbridge verification summary
       ansible.builtin.debug:
         msg:
-          - "matterbridge systemd: {{ matterbridge_service.status.ActiveState }}"
-          - "matterbridge version: {{ matterbridge_version_output.stdout }}"
-          - "gateway: {{ matterbridge_molecule_gateway_name }} (api.inbound -> api.outbound)"
-          - "relayed: {{ (matterbridge_relayed_messages | first).text }} (entered via {{ (matterbridge_relayed_messages | first).account }})"
-          - "dropped: {{ matterbridge_molecule_decoy_text }} (gateway {{ matterbridge_molecule_decoy_gateway }})"
+          - "Matterbridge systemd: {{ matterbridge_service.status.ActiveState }}"
+          - "Matterbridge version: {{ matterbridge_version_output.stdout }}"
+          - "Matterbridge gateway: {{ matterbridge_molecule_gateway_name }} (api.inbound -> api.outbound)"
+          - "Matterbridge relayed: {{ (matterbridge_relayed_messages | first).text }} (entered via {{ (matterbridge_relayed_messages | first).account }})"
+          - "Matterbridge dropped: {{ matterbridge_molecule_decoy_text }} (gateway {{ matterbridge_molecule_decoy_gateway }})"

@@ -186,10 +186,8 @@
     - name: Assert the running Matterbridge is the version this role installs
       ansible.builtin.assert:
         that: "'version: ' ~ matterbridge_defaults.matterbridge_version ~ ' ' in matterbridge_version_output.stdout"
-        fail_msg: >-
-          The container reports "{{ matterbridge_version_output.stdout }}"
-          instead of version {{ matterbridge_defaults.matterbridge_version }}
-        success_msg: "The running Matterbridge reports version {{ matterbridge_defaults.matterbridge_version }}"
+        fail_msg: "Matterbridge reports {{ matterbridge_version_output.stdout | default('none') }}, expected {{ matterbridge_defaults.matterbridge_version }}"
+        success_msg: "Matterbridge reports {{ matterbridge_version_output.stdout }}"
 
     - name: Show the Matterbridge verification summary
       ansible.builtin.debug:

@@ -26,15 +26,9 @@
 
   tasks:
     # The role is not included in this playbook, so its defaults are not in
-    # scope. Reading defaults/main.yml directly keeps the version assertion
-    # below tied to the value that Renovate bumps, with nothing to keep in
-    # sync in this scenario. include_vars reads from the controller.
-    #
-    # Only plain literal values may be read out of this namespace: the
-    # defaults that are Jinja expressions would be evaluated against variables
-    # that do not exist here. That is why the configuration path is spelled
-    # out from the identifier below rather than read from matterbridge_toml_path.
-    - name: Load the Matterbridge role defaults
+    # scope. Reading defaults/main.yml directly ties the version assertion
+    # below.
+    - name: Load the role defaults
       ansible.builtin.include_vars:
         file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
         name: matterbridge_defaults

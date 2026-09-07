@@ -83,14 +83,14 @@
     - name: Inspect the running Matterbridge container
       ansible.builtin.command:
         cmd: "docker container inspect {{ matterbridge_defaults.matterbridge_identifier }}"
-      register: matterbridge_container_inspect
+      register: matterbridge_container_raw
       changed_when: false
 
     - name: Assert the Matterbridge container is running the image this role installs
       ansible.builtin.assert:
         that:
-          - (matterbridge_container_inspect.stdout | from_json | first).State.Running
-          - "':' ~ matterbridge_defaults.matterbridge_version in (matterbridge_container_inspect.stdout | from_json | first).Config.Image"
+          - (matterbridge_container_raw.stdout | from_json | first).State.Running
+          - "':' ~ matterbridge_defaults.matterbridge_version in (matterbridge_container_raw.stdout | from_json | first).Config.Image"
         fail_msg: "The Matterbridge container is not running 42wim/matterbridge:{{ matterbridge_defaults.matterbridge_version }}"
         success_msg: "The Matterbridge container is running 42wim/matterbridge:{{ matterbridge_defaults.matterbridge_version }}"
 

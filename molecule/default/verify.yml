@@ -177,7 +177,7 @@
 
     # Matterbridge reports the upstream version, which is what
     # matterbridge_version names and what Renovate bumps.
-    - name: Ask the running container which Matterbridge it carries
+    - name: Query the version of the running Matterbridge
       ansible.builtin.command:
         cmd: "docker exec {{ matterbridge_defaults.matterbridge_identifier }} /bin/matterbridge -version"
       register: matterbridge_version_output

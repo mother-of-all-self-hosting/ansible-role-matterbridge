@@ -186,20 +186,20 @@
     - name: Query the version of the running Matterbridge
       ansible.builtin.command:
         cmd: "docker exec {{ matterbridge_defaults.matterbridge_identifier }} /bin/matterbridge -version"
-      register: matterbridge_version_output
+      register: matterbridge_version_reported
       changed_when: false
 
     - name: Assert the running Matterbridge is the version this role installs
       ansible.builtin.assert:
-        that: "'version: ' ~ matterbridge_defaults.matterbridge_version ~ ' ' in matterbridge_version_output.stdout"
-        fail_msg: "Matterbridge reports {{ matterbridge_version_output.stdout | default('none') }}, expected {{ matterbridge_defaults.matterbridge_version }}"
-        success_msg: "Matterbridge reports {{ matterbridge_version_output.stdout }}"
+        that: "'version: ' ~ matterbridge_defaults.matterbridge_version ~ ' ' in matterbridge_version_reported.stdout"
+        fail_msg: "Matterbridge reports {{ matterbridge_version_reported.stdout | default('none') }}, expected {{ matterbridge_defaults.matterbridge_version }}"
+        success_msg: "Matterbridge reports {{ matterbridge_version_reported.stdout }}"
 
     - name: Show the Matterbridge verification summary
       ansible.builtin.debug:
         msg:
           - "Matterbridge systemd: {{ matterbridge_service.status.ActiveState }}"
-          - "Matterbridge version: {{ matterbridge_version_output.stdout }}"
+          - "Matterbridge version: {{ matterbridge_version_reported.stdout }}"
           - "Matterbridge gateway: {{ matterbridge_molecule_gateway_name }} (api.inbound -> api.outbound)"
           - "Matterbridge relayed: {{ (matterbridge_relayed_messages | first).text }} (entered via {{ (matterbridge_relayed_messages | first).account }})"
           - "Matterbridge dropped: {{ matterbridge_molecule_decoy_text }} (gateway {{ matterbridge_molecule_decoy_gateway }})"

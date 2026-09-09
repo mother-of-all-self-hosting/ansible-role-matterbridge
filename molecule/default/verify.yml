@@ -27,184 +27,184 @@
   tasks:
     - name: Verify that Matterbridge works
       block:
-    # The role is not included in this playbook, so its defaults are not in
-    # scope. Reading defaults/main.yml directly ties the version assertion
-    # below.
-    - name: Load the role defaults
-      ansible.builtin.include_vars:
-        file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
-        name: matterbridge_defaults
+        # The role is not included in this playbook, so its defaults are not in
+        # scope. Reading defaults/main.yml directly ties the version assertion
+        # below.
+        - name: Load the role defaults
+          ansible.builtin.include_vars:
+            file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
+            name: matterbridge_defaults
 
-    - name: Wait for the Matterbridge systemd service to become active (up to 180s)
-      ansible.builtin.systemd_service:
-        name: matterbridge.service
-      register: matterbridge_service
-      until: matterbridge_service.status.ActiveState == 'active'
-      retries: 36
-      delay: 5
-      # So that giving up is reported by the assertion below rather than as a
-      # wall of systemd unit properties.
-      failed_when: false
+        - name: Wait for the Matterbridge systemd service to become active (up to 180s)
+          ansible.builtin.systemd_service:
+            name: matterbridge.service
+          register: matterbridge_service
+          until: matterbridge_service.status.ActiveState == 'active'
+          retries: 36
+          delay: 5
+          # So that giving up is reported by the assertion below rather than as a
+          # wall of systemd unit properties.
+          failed_when: false
 
-    # `Restart=always` in the systemd unit means that even a container which crashes
-    # and gets restarted reads as active here, so this is a precondition rather than
-    # a result.
-    - name: Assert the Matterbridge systemd service is active
-      ansible.builtin.assert:
-        that: matterbridge_service.status.ActiveState == 'active'
-        fail_msg: "matterbridge.service is not active ({{ matterbridge_service.status.ActiveState }})"
-        success_msg: "matterbridge.service is active"
+        # `Restart=always` in the systemd unit means that even a container which crashes
+        # and gets restarted reads as active here, so this is a precondition rather than
+        # a result.
+        - name: Assert the Matterbridge systemd service is active
+          ansible.builtin.assert:
+            that: matterbridge_service.status.ActiveState == 'active'
+            fail_msg: "matterbridge.service is not active ({{ matterbridge_service.status.ActiveState }})"
+            success_msg: "matterbridge.service is active"
 
-    - name: Retrieve the Matterbridge systemd service log for debugging
-      when: matterbridge_debug_service_enabled | bool
-      ansible.builtin.command:
-        cmd: journalctl --no-pager --output=cat --unit=matterbridge.service
-      changed_when: false
+        - name: Retrieve the Matterbridge systemd service log for debugging
+          when: matterbridge_debug_service_enabled | bool
+          ansible.builtin.command:
+            cmd: journalctl --no-pager --output=cat --unit=matterbridge.service
+          changed_when: false
 
-    # Matterbridge is stricter about its configuration than most: given no
-    # configuration file at all it logs `level=fatal` and exits immediately,
-    # rather than idling with nothing to do. An active unit therefore already
-    # means a configuration file was found and parsed - but not that it was
-    # this role's file, nor that what it describes works. Everything below
-    # establishes those two things.
-    - name: Read the Matterbridge configuration file this role rendered
-      ansible.builtin.slurp:
-        src: "/{{ matterbridge_defaults.matterbridge_identifier }}/config/matterbridge.toml"
-      register: matterbridge_config_file
+        # Matterbridge is stricter about its configuration than most: given no
+        # configuration file at all it logs `level=fatal` and exits immediately,
+        # rather than idling with nothing to do. An active unit therefore already
+        # means a configuration file was found and parsed - but not that it was
+        # this role's file, nor that what it describes works. Everything below
+        # establishes those two things.
+        - name: Read the Matterbridge configuration file this role rendered
+          ansible.builtin.slurp:
+            src: "/{{ matterbridge_defaults.matterbridge_identifier }}/config/matterbridge.toml"
+          register: matterbridge_config_file
 
-    - name: Assert the rendered configuration describes the gateway this scenario asked for
-      ansible.builtin.assert:
-        that:
-          - "'[api.inbound]' in matterbridge_config_file.content | b64decode"
-          - "'[api.outbound]' in matterbridge_config_file.content | b64decode"
-          - "matterbridge_molecule_gateway_name in matterbridge_config_file.content | b64decode"
-          - "'0.0.0.0:' ~ matterbridge_molecule_inbound_container_port in matterbridge_config_file.content | b64decode"
-          - "'0.0.0.0:' ~ matterbridge_molecule_outbound_container_port in matterbridge_config_file.content | b64decode"
-        fail_msg: "The rendered matterbridge.toml does not describe the {{ matterbridge_molecule_gateway_name }} gateway between the two api accounts"
-        success_msg: "The rendered matterbridge.toml describes the {{ matterbridge_molecule_gateway_name }} gateway between the two api accounts"
+        - name: Assert the rendered configuration describes the gateway this scenario asked for
+          ansible.builtin.assert:
+            that:
+              - "'[api.inbound]' in matterbridge_config_file.content | b64decode"
+              - "'[api.outbound]' in matterbridge_config_file.content | b64decode"
+              - "matterbridge_molecule_gateway_name in matterbridge_config_file.content | b64decode"
+              - "'0.0.0.0:' ~ matterbridge_molecule_inbound_container_port in matterbridge_config_file.content | b64decode"
+              - "'0.0.0.0:' ~ matterbridge_molecule_outbound_container_port in matterbridge_config_file.content | b64decode"
+            fail_msg: "The rendered matterbridge.toml does not describe the {{ matterbridge_molecule_gateway_name }} gateway between the two api accounts"
+            success_msg: "The rendered matterbridge.toml describes the {{ matterbridge_molecule_gateway_name }} gateway between the two api accounts"
 
-    # Queried via the docker CLI rather than community.docker.docker_container_info,
-    # because the ansible-lint environment used by pre-commit does not have the
-    # community.docker collection and would fail the syntax check. The full JSON
-    # is parsed here rather than using `--format`, whose Go templating would
-    # collide with Jinja.
-    - name: Inspect the running Matterbridge container
-      ansible.builtin.command:
-        cmd: "docker container inspect {{ matterbridge_defaults.matterbridge_identifier }}"
-      register: matterbridge_container_raw
-      changed_when: false
+        # Queried via the docker CLI rather than community.docker.docker_container_info,
+        # because the ansible-lint environment used by pre-commit does not have the
+        # community.docker collection and would fail the syntax check. The full JSON
+        # is parsed here rather than using `--format`, whose Go templating would
+        # collide with Jinja.
+        - name: Inspect the running Matterbridge container
+          ansible.builtin.command:
+            cmd: "docker container inspect {{ matterbridge_defaults.matterbridge_identifier }}"
+          register: matterbridge_container_raw
+          changed_when: false
 
-    - name: Assert the Matterbridge container is running the image this role installs
-      ansible.builtin.assert:
-        that:
-          - (matterbridge_container_raw.stdout | from_json | first).State.Running
-          - "':' ~ matterbridge_defaults.matterbridge_version in (matterbridge_container_raw.stdout | from_json | first).Config.Image"
-        fail_msg: "The Matterbridge container is not running 42wim/matterbridge:{{ matterbridge_defaults.matterbridge_version }}"
-        success_msg: "The Matterbridge container is running 42wim/matterbridge:{{ matterbridge_defaults.matterbridge_version }}"
+        - name: Assert the Matterbridge container is running the image this role installs
+          ansible.builtin.assert:
+            that:
+              - (matterbridge_container_raw.stdout | from_json | first).State.Running
+              - "':' ~ matterbridge_defaults.matterbridge_version in (matterbridge_container_raw.stdout | from_json | first).Config.Image"
+            fail_msg: "The Matterbridge container is not running 42wim/matterbridge:{{ matterbridge_defaults.matterbridge_version }}"
+            success_msg: "The Matterbridge container is running 42wim/matterbridge:{{ matterbridge_defaults.matterbridge_version }}"
 
-    # The bridge round-trip. Matterbridge's `api` bridge is an ordinary HTTP
-    # endpoint it serves itself, so a gateway joining two of them is a real,
-    # complete bridge that needs no chat network behind it. A message pushed
-    # into the inbound account has to pass through the router - the same code
-    # path that carries a Slack message to Matrix - to appear on the outbound
-    # one.
-    - name: Post a message that the gateway should drop, naming a gateway that does not exist
-      ansible.builtin.uri:
-        url: "http://127.0.0.1:{{ matterbridge_molecule_inbound_host_port }}/api/message"
-        method: POST
-        body_format: json
-        body:
-          text: "{{ matterbridge_molecule_decoy_text }}"
-          username: molecule
-          gateway: "{{ matterbridge_molecule_decoy_gateway }}"
-        status_code: 200
+        # The bridge round-trip. Matterbridge's `api` bridge is an ordinary HTTP
+        # endpoint it serves itself, so a gateway joining two of them is a real,
+        # complete bridge that needs no chat network behind it. A message pushed
+        # into the inbound account has to pass through the router - the same code
+        # path that carries a Slack message to Matrix - to appear on the outbound
+        # one.
+        - name: Post a message that the gateway should drop, naming a gateway that does not exist
+          ansible.builtin.uri:
+            url: "http://127.0.0.1:{{ matterbridge_molecule_inbound_host_port }}/api/message"
+            method: POST
+            body_format: json
+            body:
+              text: "{{ matterbridge_molecule_decoy_text }}"
+              username: molecule
+              gateway: "{{ matterbridge_molecule_decoy_gateway }}"
+            status_code: 200
 
-    - name: Post a message into the inbound side of the bridge
-      ansible.builtin.uri:
-        url: "http://127.0.0.1:{{ matterbridge_molecule_inbound_host_port }}/api/message"
-        method: POST
-        body_format: json
-        body:
-          text: "{{ matterbridge_molecule_probe_text }}"
-          username: molecule
-          gateway: "{{ matterbridge_molecule_gateway_name }}"
-        status_code: 200
+        - name: Post a message into the inbound side of the bridge
+          ansible.builtin.uri:
+            url: "http://127.0.0.1:{{ matterbridge_molecule_inbound_host_port }}/api/message"
+            method: POST
+            body_format: json
+            body:
+              text: "{{ matterbridge_molecule_probe_text }}"
+              username: molecule
+              gateway: "{{ matterbridge_molecule_gateway_name }}"
+            status_code: 200
 
-    # Reading this endpoint drains it, so it must not be polled for a condition
-    # that the response itself would consume. Retrying is safe only because the
-    # condition is the arrival of the message: draining an empty buffer costs
-    # nothing, and the read that finally returns the message is the read that
-    # satisfies the condition and is kept.
-    - name: Read the outbound side of the bridge until the relayed message arrives (up to 60s)
-      ansible.builtin.uri:
-        url: "http://127.0.0.1:{{ matterbridge_molecule_outbound_host_port }}/api/messages"
-        method: GET
-        return_content: true
-      register: matterbridge_outbound_read
-      until: matterbridge_molecule_probe_text in matterbridge_outbound_read.content
-      retries: 30
-      delay: 2
+        # Reading this endpoint drains it, so it must not be polled for a condition
+        # that the response itself would consume. Retrying is safe only because the
+        # condition is the arrival of the message: draining an empty buffer costs
+        # nothing, and the read that finally returns the message is the read that
+        # satisfies the condition and is kept.
+        - name: Read the outbound side of the bridge until the relayed message arrives (up to 60s)
+          ansible.builtin.uri:
+            url: "http://127.0.0.1:{{ matterbridge_molecule_outbound_host_port }}/api/messages"
+            method: GET
+            return_content: true
+          register: matterbridge_outbound_read
+          until: matterbridge_molecule_probe_text in matterbridge_outbound_read.content
+          retries: 30
+          delay: 2
 
-    - name: Determine what came out of the outbound side of the bridge
-      ansible.builtin.set_fact:
-        matterbridge_relayed_messages: "{{ matterbridge_outbound_read.content | from_json }}"
+        - name: Determine what came out of the outbound side of the bridge
+          ansible.builtin.set_fact:
+            matterbridge_relayed_messages: "{{ matterbridge_outbound_read.content | from_json }}"
 
-    - name: Assert the message crossed the gateway and the dropped one did not
-      ansible.builtin.assert:
-        that:
-          - matterbridge_relayed_messages | length == 1
-          - (matterbridge_relayed_messages | first).text == matterbridge_molecule_probe_text
-          - (matterbridge_relayed_messages | first).gateway == matterbridge_molecule_gateway_name
-          - (matterbridge_relayed_messages | first).account == 'api.inbound'
-          - matterbridge_molecule_decoy_text not in matterbridge_outbound_read.content
-        fail_msg: >-
-          The outbound side of the bridge did not report exactly the message posted to the inbound side
-          over the {{ matterbridge_molecule_gateway_name }} gateway
-        success_msg: >-
-          The message posted to the inbound api account was relayed to the outbound one over the
-          {{ matterbridge_molecule_gateway_name }} gateway, and the message naming a non-existent gateway was dropped
+        - name: Assert the message crossed the gateway and the dropped one did not
+          ansible.builtin.assert:
+            that:
+              - matterbridge_relayed_messages | length == 1
+              - (matterbridge_relayed_messages | first).text == matterbridge_molecule_probe_text
+              - (matterbridge_relayed_messages | first).gateway == matterbridge_molecule_gateway_name
+              - (matterbridge_relayed_messages | first).account == 'api.inbound'
+              - matterbridge_molecule_decoy_text not in matterbridge_outbound_read.content
+            fail_msg: >-
+              The outbound side of the bridge did not report exactly the message posted to the inbound side
+              over the {{ matterbridge_molecule_gateway_name }} gateway
+            success_msg: >-
+              The message posted to the inbound api account was relayed to the outbound one over the
+              {{ matterbridge_molecule_gateway_name }} gateway, and the message naming a non-existent gateway was dropped
 
-    # The relayed message is tagged with the account it entered by, but that is
-    # Matterbridge's own bookkeeping. Reading the inbound endpoint shows it is
-    # not simply a buffer being read back: the message is not there, because it
-    # left the inbound account for the outbound one.
-    - name: Read the inbound side of the bridge
-      ansible.builtin.uri:
-        url: "http://127.0.0.1:{{ matterbridge_molecule_inbound_host_port }}/api/messages"
-        method: GET
-        return_content: true
-      register: matterbridge_inbound_read
+        # The relayed message is tagged with the account it entered by, but that is
+        # Matterbridge's own bookkeeping. Reading the inbound endpoint shows it is
+        # not simply a buffer being read back: the message is not there, because it
+        # left the inbound account for the outbound one.
+        - name: Read the inbound side of the bridge
+          ansible.builtin.uri:
+            url: "http://127.0.0.1:{{ matterbridge_molecule_inbound_host_port }}/api/messages"
+            method: GET
+            return_content: true
+          register: matterbridge_inbound_read
 
-    - name: Assert the message was carried across rather than read back where it went in
-      ansible.builtin.assert:
-        that: matterbridge_inbound_read.content | from_json | length == 0
-        fail_msg: >-
-          The inbound api account still holds messages, so the read above does not show that
-          anything crossed the gateway
-        success_msg: "The inbound api account holds nothing, so the relayed message genuinely crossed the gateway"
+        - name: Assert the message was carried across rather than read back where it went in
+          ansible.builtin.assert:
+            that: matterbridge_inbound_read.content | from_json | length == 0
+            fail_msg: >-
+              The inbound api account still holds messages, so the read above does not show that
+              anything crossed the gateway
+            success_msg: "The inbound api account holds nothing, so the relayed message genuinely crossed the gateway"
 
-    # Matterbridge reports the upstream version, which is what
-    # matterbridge_version names and what Renovate bumps.
-    - name: Query the version of the running Matterbridge
-      ansible.builtin.command:
-        cmd: "docker exec {{ matterbridge_defaults.matterbridge_identifier }} /bin/matterbridge -version"
-      register: matterbridge_version_reported
-      changed_when: false
+        # Matterbridge reports the upstream version, which is what
+        # matterbridge_version names and what Renovate bumps.
+        - name: Query the version of the running Matterbridge
+          ansible.builtin.command:
+            cmd: "docker exec {{ matterbridge_defaults.matterbridge_identifier }} /bin/matterbridge -version"
+          register: matterbridge_version_reported
+          changed_when: false
 
-    - name: Assert the running Matterbridge is the version this role installs
-      ansible.builtin.assert:
-        that: "'version: ' ~ matterbridge_defaults.matterbridge_version ~ ' ' in matterbridge_version_reported.stdout"
-        fail_msg: "Matterbridge reports {{ matterbridge_version_reported.stdout | default('none') }}, expected {{ matterbridge_defaults.matterbridge_version }}"
-        success_msg: "Matterbridge reports {{ matterbridge_version_reported.stdout }}"
+        - name: Assert the running Matterbridge is the version this role installs
+          ansible.builtin.assert:
+            that: "'version: ' ~ matterbridge_defaults.matterbridge_version ~ ' ' in matterbridge_version_reported.stdout"
+            fail_msg: "Matterbridge reports {{ matterbridge_version_reported.stdout | default('none') }}, expected {{ matterbridge_defaults.matterbridge_version }}"
+            success_msg: "Matterbridge reports {{ matterbridge_version_reported.stdout }}"
 
-    - name: Show the Matterbridge verification summary
-      ansible.builtin.debug:
-        msg:
-          - "Matterbridge systemd: {{ matterbridge_service.status.ActiveState }}"
-          - "Matterbridge version: {{ matterbridge_version_reported.stdout }}"
-          - "Matterbridge gateway: {{ matterbridge_molecule_gateway_name }} (api.inbound -> api.outbound)"
-          - "Matterbridge relayed: {{ (matterbridge_relayed_messages | first).text }} (entered via {{ (matterbridge_relayed_messages | first).account }})"
-          - "Matterbridge dropped: {{ matterbridge_molecule_decoy_text }} (gateway {{ matterbridge_molecule_decoy_gateway }})"
+        - name: Show the Matterbridge verification summary
+          ansible.builtin.debug:
+            msg:
+              - "Matterbridge systemd: {{ matterbridge_service.status.ActiveState }}"
+              - "Matterbridge version: {{ matterbridge_version_reported.stdout }}"
+              - "Matterbridge gateway: {{ matterbridge_molecule_gateway_name }} (api.inbound -> api.outbound)"
+              - "Matterbridge relayed: {{ (matterbridge_relayed_messages | first).text }} (entered via {{ (matterbridge_relayed_messages | first).account }})"
+              - "Matterbridge dropped: {{ matterbridge_molecule_decoy_text }} (gateway {{ matterbridge_molecule_decoy_gateway }})"
 
       rescue:
         # Whatever went wrong, the reason is almost always in the systemd service log.

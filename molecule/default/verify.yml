@@ -25,6 +25,8 @@
     matterbridge_molecule_decoy_gateway: matterbridge-molecule-nonexistent
 
   tasks:
+    - name: Verify that Matterbridge works
+      block:
     # The role is not included in this playbook, so its defaults are not in
     # scope. Reading defaults/main.yml directly ties the version assertion
     # below.
@@ -203,3 +205,19 @@
           - "Matterbridge gateway: {{ matterbridge_molecule_gateway_name }} (api.inbound -> api.outbound)"
           - "Matterbridge relayed: {{ (matterbridge_relayed_messages | first).text }} (entered via {{ (matterbridge_relayed_messages | first).account }})"
           - "Matterbridge dropped: {{ matterbridge_molecule_decoy_text }} (gateway {{ matterbridge_molecule_decoy_gateway }})"
+
+      rescue:
+        # Whatever went wrong, the reason is almost always in the systemd service log.
+        - name: Retrieve the Matterbridge systemd service log
+          ansible.builtin.command:
+            cmd: journalctl --no-pager --output=cat --unit=matterbridge.service
+          register: matterbridge_service_log
+          changed_when: false
+
+        - name: Show the Matterbridge systemd service log
+          ansible.builtin.debug:
+            var: matterbridge_service_log.stdout_lines
+
+        - name: Fail because verification did not pass
+          ansible.builtin.fail:
+            msg: "Matterbridge verification failed. The systemd service log is printed above."

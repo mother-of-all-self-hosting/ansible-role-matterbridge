@@ -24,6 +24,9 @@
     matterbridge_molecule_decoy_text: mb-molecule-decoy-dropped-5e8b
     matterbridge_molecule_decoy_gateway: matterbridge-molecule-nonexistent
 
+    matterbridge_verify_units:
+      - matterbridge.service
+
   tasks:
     - name: Verify that Matterbridge works
       block:
@@ -35,13 +38,14 @@
             file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
             name: matterbridge_defaults
 
-        - name: Wait for the Matterbridge systemd service to become active (up to 180s)
+        - name: Wait for the Matterbridge systemd services to become active (up to 180s each)
           ansible.builtin.systemd_service:
-            name: matterbridge.service
-          register: matterbridge_service
-          until: matterbridge_service.status.ActiveState == 'active'
+            name: "{{ item }}"
+          register: matterbridge_services
+          until: matterbridge_services.status.ActiveState == 'active'
           retries: 36
           delay: 5
+          loop: "{{ matterbridge_verify_units }}"
           # So that giving up is reported by the assertion below rather than as a
           # wall of systemd unit properties.
           failed_when: false
@@ -49,17 +53,20 @@
         # `Restart=always` in the systemd unit means that even a container which crashes
         # and gets restarted reads as active here, so this is a precondition rather than
         # a result.
-        - name: Assert the Matterbridge systemd service is active
+        - name: Assert the Matterbridge systemd services are active
           ansible.builtin.assert:
-            that: matterbridge_service.status.ActiveState == 'active'
-            fail_msg: "matterbridge.service is not active ({{ matterbridge_service.status.ActiveState }})"
-            success_msg: "matterbridge.service is active"
+            that: matterbridge_services.results | map(attribute='status.ActiveState') | unique | list == ['active']
+            fail_msg: >-
+              Not every service is active:
+              {{ dict(matterbridge_verify_units | zip(matterbridge_services.results | map(attribute='status.ActiveState'))) }}
+            success_msg: "Every systemd service is active"
 
-        - name: Retrieve the Matterbridge systemd service log for debugging
+        - name: Retrieve the Matterbridge systemd services log for debugging
           when: matterbridge_debug_service_enabled | bool
           ansible.builtin.command:
-            cmd: journalctl --no-pager --output=cat --unit=matterbridge.service
+            cmd: "journalctl --no-pager --output=cat --unit={{ item }}"
           changed_when: false
+          loop: "{{ matterbridge_verify_units }}"
 
         # Matterbridge is stricter about its configuration than most: given no
         # configuration file at all it logs `level=fatal` and exits immediately,
@@ -200,7 +207,7 @@
         - name: Show the Matterbridge verification summary
           ansible.builtin.debug:
             msg:
-              - "Matterbridge systemd: {{ matterbridge_service.status.ActiveState }}"
+              - "Matterbridge systemd: {% for unit, state in matterbridge_verify_units | zip(matterbridge_services.results | map(attribute='status.ActiveState')) %}{{ unit }} ({{ state }}){% if not loop.last %}, {% endif %}{% endfor %}"
               - "Matterbridge version: {{ matterbridge_version_reported.stdout }}"
               - "Matterbridge gateway: {{ matterbridge_molecule_gateway_name }} (api.inbound -> api.outbound)"
               - "Matterbridge relayed: {{ (matterbridge_relayed_messages | first).text }} (entered via {{ (matterbridge_relayed_messages | first).account }})"

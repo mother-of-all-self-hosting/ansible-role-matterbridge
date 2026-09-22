@@ -51,7 +51,7 @@ matterbridge_enabled: true
 
 To use Matterbridge it is necessary to add configuration for accounts and gateways to `matterbridge_configuration_toml`.
 
-See [this page](https://github.com/42wim/matterbridge/wiki/How-to-create-your-config) on the official documentation for details.
+Refer to [this page](https://github.com/42wim/matterbridge/wiki/How-to-create-your-config) on the official documentation for details.
 
 Here is an example of the configuration:
 

@@ -30,4 +30,3 @@
   with_items:
     - matterbridge_uid
     - matterbridge_gid
-    - matterbridge_container_network

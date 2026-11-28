@@ -48,6 +48,10 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       {{ arg }} \
       {% endfor %}
 
+{% for network in matterbridge_container_additional_networks %}
+ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} network connect {{ network }} {{ matterbridge_identifier }}
+{% endfor %}
+
 ExecStart={{ devture_systemd_docker_base_host_command_docker }} start --attach {{ matterbridge_identifier }}
 
 ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} stop -t {{ devture_systemd_docker_base_container_stop_grace_time_seconds }} {{ matterbridge_identifier }} 2>/dev/null'
